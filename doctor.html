@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Clinic Appointment - RT Scheduling Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav id="navbar" class="sticky top-0 z-50 bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="dashboeard.html" class="flex items-center space-x-2 text-2xl font-bold text-blue-600 hover:text-blue-700"><span class="text-3xl">📅</span><span>AppointmentPro</span></a>
+            <ul class="hidden md:flex space-x-6 items-center"><li><a href="dashboeard.html" class="text-gray-700 hover:text-blue-600 font-medium">Home</a></li><li><a href="login.html" class="text-gray-700 hover:text-blue-600 font-medium">Login</a></li><li><a href="staff-login.html" class="text-gray-700 hover:text-blue-600 font-medium">Staff</a></li></ul>
+            <button id="mobile-menu-btn" class="md:hidden text-gray-700 text-2xl">☰</button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-50 border-t"><ul class="flex flex-col space-y-2 p-4"><li><a href="dashboeard.html" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Home</a></li><li><a href="login.html" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Login</a></li><li><a href="staff-login.html" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Staff</a></li></ul></div>
+    </nav>
+    <div id="app" class="min-h-screen flex flex-col items-center p-0 sm:p-4">
+        <!-- Header -->
+        <header class="w-full max-w-7xl mb-0 sm:mb-8 bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-lg flex justify-between items-center">
+            <div class="flex flex-col">
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">
+                    RT Scheduling Pro
+                </h1>
+                <p class="text-xs sm:text-sm text-gray-500 mt-1">Doctor Clinic Appointment</p>
+            </div>
+            
+            <div class="flex space-x-2 sm:space-x-4 items-center">
+                <a href="index.html" class="px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-md">
+                    Back
+                </a>
+                <a id="login-link" href="login.html" class="px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-colors bg-green-600 text-white hover:bg-green-700 shadow-md">
+                    Login
+                </a>
+                <button id="logout-link" class="hidden px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-colors bg-red-600 text-white hover:bg-red-700 shadow-md">
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="w-full max-w-4xl flex-grow">
+            <div class="w-full max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-xl mt-8 mb-8">
+                <div class="mb-8">
+                    <h2 class="text-4xl font-bold text-gray-800 mb-2">💅 Doctor Clinic Appointment</h2>
+                    <p class="text-gray-600">Book your doctor clinic appointment</p>
+                </div>
+
+                <form id="booking-form" class="space-y-6">
+                    <!-- Full Name -->
+                    <div>
+                        <label for="client_name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="client_name" name="client_name" required
+                            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                            placeholder="e.g., John Doe">
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="client_email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="client_email" name="client_email" required
+                            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                            placeholder="e.g., john@example.com">
+                    </div>
+
+                    <!-- Phone -->
+                    <div>
+                        <label for="client_phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                        <input type="tel" id="client_phone" name="client_phone" required
+                            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                            placeholder="e.g., (555) 123-4567">
+                    </div>
+
+                    <!-- Specialist Type -->
+                    <div>
+                        <label for="specialist" class="block text-sm font-medium text-gray-700 mb-1">Doctor Specialty</label>
+                        <select id="specialist" name="specialist" required
+                            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                            <option value="" disabled selected>Select specialist</option>
+                            <option value="general">General Practitioner</option>
+                            <option value="dermatology">Dermatology</option>
+                            <option value="dentistry">Dentistry</option>
+                            <option value="ophthalmology">Ophthalmology</option>
+                            <option value="pediatrics">Pediatrics</option>
+                        </select>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label for="appointment_date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                            <input type="date" id="appointment_date" name="appointment_date" required
+                                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                        </div>
+                        <div>
+                            <label for="appointment_time" class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+                            <input type="time" id="appointment_time" name="appointment_time" required
+                                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                        </div>
+                    </div>
+
+                    <!-- Chief Complaint -->
+                    <div>
+                        <label for="chief_complaint" class="block text-sm font-medium text-gray-700 mb-1">Chief Complaint/Reason for Visit</label>
+                        <textarea id="chief_complaint" name="chief_complaint" rows="4" required
+                            class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                            placeholder="Describe your symptoms or reason for visit..."></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit"
+                        class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150">
+                        Submit Appointment Request
+                    </button>
+                </form>
+
+                <!-- Success Message -->
+                <div id="success-message" class="hidden mt-6 p-4 bg-green-100 border border-green-400 text-green-800 rounded-lg">
+                    <p class="font-semibold">✓ Appointment request submitted successfully!</p>
+                    <p class="text-sm mt-2">You will receive a confirmation email shortly.</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Message Box -->
+        <div id="message-box" class="fixed bottom-4 right-4 max-w-xs transition-opacity duration-300 opacity-0 pointer-events-none z-50">
+            <!-- Messages appear here -->
+        </div>
+    </div>
+
+    <script>
+        function showMessage(message, type = 'success') {
+            const box = document.getElementById('message-box');
+            let bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+
+            box.innerHTML = `
+                <div class="${bgColor} text-white p-4 rounded-xl shadow-2xl">
+                    ${message}
+                </div>
+            `;
+            box.classList.remove('opacity-0', 'pointer-events-none');
+            box.classList.add('opacity-100');
+
+            setTimeout(() => {
+                box.classList.remove('opacity-100');
+                box.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Check authentication status
+        function checkAuthStatus() {
+            const currentUser = localStorage.getItem('currentUser');
+            const loginLink = document.getElementById('login-link');
+            const logoutLink = document.getElementById('logout-link');
+
+            if (currentUser) {
+                loginLink.classList.add('hidden');
+                logoutLink.classList.remove('hidden');
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('rememberMe');
+            location.reload();
+        }
+
+        // Set minimum date to today
+        document.getElementById('appointment_date').min = new Date().toISOString().split('T')[0];
+
+        // Handle form submission
+        document.getElementById('booking-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = {
+                service: 'Doctor Clinic',
+                client_name: document.getElementById('client_name').value,
+                client_email: document.getElementById('client_email').value,
+                client_phone: document.getElementById('client_phone').value,
+                specialist: document.getElementById('specialist').value,
+                appointment_date: document.getElementById('appointment_date').value,
+                appointment_time: document.getElementById('appointment_time').value,
+                chief_complaint: document.getElementById('chief_complaint').value,
+                submitted_at: new Date().toISOString()
+            };
+
+            try {
+                // Store data in localStorage for demo purposes
+                let appointments = JSON.parse(localStorage.getItem('doctor_appointments') || '[]');
+                appointments.push(formData);
+                localStorage.setItem('doctor_appointments', JSON.stringify(appointments));
+
+                // Show success message
+                document.getElementById('booking-form').style.display = 'none';
+                document.getElementById('success-message').classList.remove('hidden');
+                showMessage('Appointment booked successfully!', 'success');
+
+                // Reset form after 3 seconds
+                setTimeout(() => {
+                    document.getElementById('booking-form').reset();
+                    document.getElementById('booking-form').style.display = 'block';
+                    document.getElementById('success-message').classList.add('hidden');
+                }, 3000);
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                showMessage('Failed to submit appointment. Please try again.', 'error');
+            }
+        });
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            document.getElementById('logout-link').addEventListener('click', handleLogout);
+            document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
+                document.getElementById('mobile-menu').classList.toggle('hidden');
+            });
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                });
+            });
+        });
+    </script>
+
+    <!-- FOOTER -->
+    <footer class="bg-gray-900 text-white mt-16 w-full">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <div><h4 class="text-xl font-bold mb-4">AppointmentPro</h4><p class="text-gray-400 text-sm mb-4">Modern appointment booking system.</p></div>
+                <div><h4 class="text-lg font-bold mb-4">Quick Links</h4><ul class="space-y-2 text-sm"><li><a href="dashboeard.html" class="text-gray-400 hover:text-white transition">Home</a></li><li><a href="login.html" class="text-gray-400 hover:text-white transition">Login</a></li></ul></div>
+                <div><h4 class="text-lg font-bold mb-4">Services</h4><ul class="space-y-2 text-sm"><li><a href="school.html" class="text-gray-400 hover:text-white transition">School</a></li><li><a href="hospital.html" class="text-gray-400 hover:text-white transition">Hospital</a></li></ul></div>
+                <div><h4 class="text-lg font-bold mb-4">Follow Us</h4><div class="flex space-x-4 mb-6"><a href="https://facebook.com" target="_blank" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 text-white transition" title="Facebook">f</a><a href="https://instagram.com" target="_blank" class="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 text-white transition" title="Instagram">📷</a><a href="https://twitter.com" target="_blank" class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center hover:bg-gray-700 text-white transition" title="Twitter">𝕏</a><a href="https://youtube.com" target="_blank" class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 text-white transition" title="YouTube">▶️</a><a href="https://linkedin.com" target="_blank" class="w-10 h-10 bg-blue-700 rounded-full flex items-center justify-center hover:bg-blue-800 text-white transition" title="LinkedIn">in</a></div><ul class="space-y-1 text-sm text-gray-400"><li>📧 <a href="mailto:info@appointmentpro.com" class="hover:text-white">info@appointmentpro.com</a></li></ul></div>
+            </div>
+            <hr class="border-gray-700 mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400"><p>&copy; 2025 AppointmentPro. All rights reserved.</p><div class="flex space-x-6 mt-4 md:mt-0"><a href="#" class="hover:text-white transition">Privacy Policy</a><a href="#" class="hover:text-white transition">Terms</a></div></div>
+        </div>
+    </footer>
+</body>
+</html>

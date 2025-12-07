@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Login - Appointment System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        html, body {
+            height: 100%;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            min-height: 100vh;
+        }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: -1;
+        }
+        #navbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+        }
+        #footer {
+            position: relative;
+            width: 100%;
+            margin-top: auto;
+        }
+        .flip-card-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 400px;
+            margin-top: 80px;
+        }
+        .flip-card {
+            position: relative;
+            width: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            backface-visibility: hidden;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            margin-bottom: 12px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-flip {
+            background: #f0f0f0;
+            color: #667eea;
+            font-weight: 600;
+        }
+        .btn-flip:hover {
+            background: #e0e0e0;
+        }
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .success {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav id="navbar" class="sticky top-0 z-50 bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <a href="dashboeard.html" class="flex items-center space-x-2 text-2xl font-bold text-blue-600 hover:text-blue-700">
+                    <span class="text-3xl">📅</span>
+                    <span>AppointmentPro</span>
+                </a>
+            </div>
+            <ul class="hidden md:flex space-x-6 items-center">
+                <li><a href="dashboeard.html" class="text-gray-700 hover:text-blue-600 font-medium transition">Home</a></li>
+                <li><a href="login.html" class="text-gray-700 hover:text-blue-600 font-medium transition">Client Login</a></li>
+            </ul>
+            <button id="mobile-menu-btn" class="md:hidden text-gray-700 text-2xl">☰</button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-50 border-t">
+            <ul class="flex flex-col space-y-2 p-4">
+                <li><a href="dashboeard.html" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Home</a></li>
+                <li><a href="login.html" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Client Login</a></li>
+            </ul>
+        </div>
+    </nav>
+    <div class="flip-card-container">
+        <div class="flip-card" id="flip-card">
+            <!-- Login Form (Front) -->
+            <div class="flip-card-front">
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Staff Login</h2>
+                    <form id="login-form">
+                        <div class="input-group">
+                            <label for="login-email">Email</label>
+                            <input type="email" id="login-email" name="email" required placeholder="your@email.com">
+                            <div id="login-email-error" class="error"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" name="password" required placeholder="Your password">
+                            <div id="login-password-error" class="error"></div>
+                        </div>
+                        <div class="input-group">
+                            <label>
+                                <input type="checkbox" id="remember-me" name="rememberMe">
+                                <span style="font-weight: normal; color: #666;">Remember me</span>
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="button" class="btn btn-flip" onclick="document.getElementById('flip-card').classList.toggle('flipped')">
+                            Don't have account? Sign Up
+                        </button>
+                    </form>
+                    <div id="login-message" class="success" style="text-align: center; margin-top: 15px;"></div>
+                    <div class="back-link">
+                        <a href="dashboeard.html">← Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signup Form (Back) -->
+            <div class="flip-card-back">
+                <div class="card">
+                    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Staff Signup</h2>
+                    <form id="signup-form">
+                        <div class="input-group">
+                            <label for="signup-name">Full Name</label>
+                            <input type="text" id="signup-name" name="name" required placeholder="John Doe">
+                            <div id="signup-name-error" class="error"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="signup-email">Email</label>
+                            <input type="email" id="signup-email" name="email" required placeholder="your@email.com">
+                            <div id="signup-email-error" class="error"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="signup-phone">Phone Number</label>
+                            <input type="tel" id="signup-phone" name="phone" required placeholder="123-456-7890">
+                            <div id="signup-phone-error" class="error"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="signup-role">Staff Role</label>
+                            <select id="signup-role" name="role" required>
+                                <option value="">Select Role</option>
+                                <option value="admin">Admin</option>
+                                <option value="manager">Manager</option>
+                                <option value="staff">Staff</option>
+                            </select>
+                            <div id="signup-role-error" class="error"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="signup-password">Password</label>
+                            <input type="password" id="signup-password" name="password" required placeholder="Create a password (min 6 chars)">
+                            <div id="signup-password-error" class="error"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="signup-confirm">Confirm Password</label>
+                            <input type="password" id="signup-confirm" name="confirm" required placeholder="Confirm password">
+                            <div id="signup-confirm-error" class="error"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Account</button>
+                        <button type="button" class="btn btn-flip" onclick="document.getElementById('flip-card').classList.toggle('flipped')">
+                            Already have account? Login
+                        </button>
+                    </form>
+                    <div id="signup-message" class="success" style="text-align: center; margin-top: 15px;"></div>
+                    <div class="back-link">
+                        <a href="dashboeard.html">← Back to Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Validation helpers
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+        }
+
+        function setError(elementId, message) {
+            const el = document.getElementById(elementId);
+            if (el) el.textContent = message;
+        }
+
+        function setSuccess(elementId, message) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.textContent = message;
+                el.style.color = '#27ae60';
+            }
+        }
+
+        // Validate email format
+        function isValidEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Validate password strength
+        function isValidPassword(password) {
+            return password.length >= 6;
+        }
+
+        // LOGIN FORM
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            const rememberMe = document.getElementById('remember-me').checked;
+
+            // Validation
+            let valid = true;
+            if (!email) {
+                setError('login-email-error', 'Email is required');
+                valid = false;
+            } else if (!isValidEmail(email)) {
+                setError('login-email-error', 'Invalid email format');
+                valid = false;
+            }
+
+            if (!password) {
+                setError('login-password-error', 'Password is required');
+                valid = false;
+            }
+
+            if (!valid) return;
+
+            // Simulate staff authentication (in production, use Firebase or backend)
+            // For now, store staff user in localStorage
+            const staffUsers = JSON.parse(localStorage.getItem('staffUsers') || '[]');
+            const user = staffUsers.find(u => u.email === email && u.password === password);
+
+            if (!user) {
+                setError('login-email-error', 'Invalid email or password');
+                return;
+            }
+
+            // Store logged-in staff user
+            const staffUser = {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                role: user.role,
+                loginTime: new Date().toISOString()
+            };
+
+            localStorage.setItem('staffUser', JSON.stringify(staffUser));
+            if (rememberMe) {
+                localStorage.setItem('staffRememberMe', 'true');
+            }
+
+            setSuccess('login-message', 'Login successful! Redirecting...');
+            setTimeout(() => {
+                window.location.href = 'staff-dashboard.html';
+            }, 1500);
+        });
+
+        // SIGNUP FORM
+        document.getElementById('signup-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            clearErrors();
+
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim();
+            const phone = document.getElementById('signup-phone').value.trim();
+            const role = document.getElementById('signup-role').value;
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+
+            // Validation
+            let valid = true;
+            if (!name) {
+                setError('signup-name-error', 'Name is required');
+                valid = false;
+            }
+
+            if (!email) {
+                setError('signup-email-error', 'Email is required');
+                valid = false;
+            } else if (!isValidEmail(email)) {
+                setError('signup-email-error', 'Invalid email format');
+                valid = false;
+            }
+
+            if (!phone) {
+                setError('signup-phone-error', 'Phone is required');
+                valid = false;
+            }
+
+            if (!role) {
+                setError('signup-role-error', 'Please select a role');
+                valid = false;
+            }
+
+            if (!password) {
+                setError('signup-password-error', 'Password is required');
+                valid = false;
+            } else if (!isValidPassword(password)) {
+                setError('signup-password-error', 'Password must be at least 6 characters');
+                valid = false;
+            }
+
+            if (password !== confirm) {
+                setError('signup-confirm-error', 'Passwords do not match');
+                valid = false;
+            }
+
+            if (!valid) return;
+
+            // Check if email already exists
+            const staffUsers = JSON.parse(localStorage.getItem('staffUsers') || '[]');
+            if (staffUsers.find(u => u.email === email)) {
+                setError('signup-email-error', 'Email already registered');
+                return;
+            }
+
+            // Create new staff user
+            const newUser = {
+                id: 'staff-' + Date.now(),
+                name,
+                email,
+                phone,
+                role,
+                password, // In production, this should be hashed on server
+                createdAt: new Date().toISOString()
+            };
+
+            staffUsers.push(newUser);
+            localStorage.setItem('staffUsers', JSON.stringify(staffUsers));
+
+            // Auto-login after signup
+            const staffUser = {
+                id: newUser.id,
+                name: newUser.name,
+                email: newUser.email,
+                phone: newUser.phone,
+                role: newUser.role,
+                loginTime: new Date().toISOString()
+            };
+            localStorage.setItem('staffUser', JSON.stringify(staffUser));
+            localStorage.setItem('staffRememberMe', 'true');
+
+            setSuccess('signup-message', 'Account created successfully! Redirecting...');
+            setTimeout(() => {
+                window.location.href = 'staff-dashboard.html';
+            }, 1500);
+        });
+
+        // Auto-login if remembered
+        window.addEventListener('load', function() {
+            const staffUser = localStorage.getItem('staffUser');
+            const rememberMe = localStorage.getItem('staffRememberMe');
+            
+            if (staffUser && rememberMe) {
+                window.location.href = 'staff-dashboard.html';
+            }
+
+            // Mobile menu toggle
+            document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.toggle('hidden');
+            });
+
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                });
+            });
+        });
+    </script>
+
+    <!-- FOOTER
+    <footer id="footer" class="bg-gray-900 text-white w-full">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <div>
+                    <h4 class="text-xl font-bold mb-4">AppointmentPro</h4>
+                    <p class="text-gray-400 text-sm mb-4">Modern appointment booking system.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="dashboeard.html" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="login.html" class="text-gray-400 hover:text-white transition">Client Login</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Services</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="school.html" class="text-gray-400 hover:text-white transition">School/College</a></li>
+                        <li><a href="hospital.html" class="text-gray-400 hover:text-white transition">Hospital</a></li>
+                        <li><a href="doctor.html" class="text-gray-400 hover:text-white transition">Doctor</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4 mb-6">
+                        <a href="https://facebook.com" target="_blank" class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition text-white" title="Facebook">f</a>
+                        <a href="https://instagram.com" target="_blank" class="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition text-white" title="Instagram">📷</a>
+                        <a href="https://twitter.com" target="_blank" class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center hover:bg-gray-700 transition text-white" title="Twitter">𝕏</a>
+                        <a href="https://youtube.com" target="_blank" class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 transition text-white" title="YouTube">▶️</a>
+                        <a href="https://linkedin.com" target="_blank" class="w-10 h-10 bg-blue-700 rounded-full flex items-center justify-center hover:bg-blue-800 transition text-white" title="LinkedIn">in</a>
+                    </div>
+                    <ul class="space-y-1 text-sm text-gray-400">
+                        <li>📧 <a href="mailto:info@appointmentpro.com" class="hover:text-white">info@appointmentpro.com</a></li>
+                        <li>📞 <a href="tel:+1234567890" class="hover:text-white">+1 (234) 567-890</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-gray-700 mb-6">
+            <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+                <p>&copy; 2025 AppointmentPro. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer> -->
+</body>
+</html>
+

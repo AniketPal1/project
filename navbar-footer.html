@@ -1,0 +1,169 @@
+<!-- NAVBAR COMPONENT (Include at top of body) -->
+<nav id="navbar" class="sticky top-0 z-50 bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <!-- Logo/Brand -->
+        <div class="flex items-center space-x-2">
+            <a href="dashboeard.html" class="flex items-center space-x-2 text-2xl font-bold text-blue-600 hover:text-blue-700">
+                <span class="text-3xl">📅</span>
+                <span>AppointmentPro</span>
+            </a>
+        </div>
+
+        <!-- Desktop Menu -->
+        <ul class="hidden md:flex space-x-6 items-center">
+            <li><a href="dashboeard.html" class="text-gray-700 hover:text-blue-600 font-medium transition">Home</a></li>
+            <li><a href="#services" class="text-gray-700 hover:text-blue-600 font-medium transition">Services</a></li>
+            <li><a href="login.html" class="text-gray-700 hover:text-blue-600 font-medium transition">Client Login</a></li>
+            <li><a href="staff-login.html" class="text-gray-700 hover:text-blue-600 font-medium transition">Staff Portal</a></li>
+            <li><a href="#about" class="text-gray-700 hover:text-blue-600 font-medium transition">About</a></li>
+            <li><a href="#contact" class="text-gray-700 hover:text-blue-600 font-medium transition">Contact</a></li>
+        </ul>
+
+        <!-- Mobile Menu Toggle Button -->
+        <button id="mobile-menu-btn" class="md:hidden text-gray-700 text-2xl">
+            ☰
+        </button>
+    </div>
+
+    <!-- Mobile Menu (Hidden by default) -->
+    <div id="mobile-menu" class="hidden md:hidden bg-gray-50 border-t">
+        <ul class="flex flex-col space-y-2 p-4">
+            <li><a href="dashboeard.html" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Home</a></li>
+            <li><a href="#services" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Services</a></li>
+            <li><a href="login.html" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Client Login</a></li>
+            <li><a href="staff-login.html" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Staff Portal</a></li>
+            <li><a href="#about" class="block text-gray-700 hover:text-blue-600 font-medium py-2">About</a></li>
+            <li><a href="#contact" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Contact</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- FOOTER COMPONENT (Include at bottom of body, before closing </body>) -->
+<footer id="footer" class="bg-gray-900 text-white mt-16">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+        <!-- Footer Content Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+            <!-- Company Info -->
+            <div>
+                <h4 class="text-xl font-bold mb-4">AppointmentPro</h4>
+                <p class="text-gray-400 text-sm mb-4">
+                    Modern appointment booking system designed to simplify scheduling for all service types.
+                </p>
+                <p class="text-gray-500 text-xs">© 2025 AppointmentPro. All rights reserved.</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="text-lg font-bold mb-4">Quick Links</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="dashboeard.html" class="text-gray-400 hover:text-white transition">Home</a></li>
+                    <li><a href="#services" class="text-gray-400 hover:text-white transition">Services</a></li>
+                    <li><a href="login.html" class="text-gray-400 hover:text-white transition">Book Appointment</a></li>
+                    <li><a href="staff-login.html" class="text-gray-400 hover:text-white transition">Staff Dashboard</a></li>
+                </ul>
+            </div>
+
+            <!-- Services -->
+            <div>
+                <h4 class="text-lg font-bold mb-4">Services</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="school.html" class="text-gray-400 hover:text-white transition">School/College</a></li>
+                    <li><a href="hospital.html" class="text-gray-400 hover:text-white transition">Hospital</a></li>
+                    <li><a href="company.html" class="text-gray-400 hover:text-white transition">Company</a></li>
+                    <li><a href="doctor.html" class="text-gray-400 hover:text-white transition">Doctor Clinic</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact & Social Media -->
+            <div>
+                <h4 class="text-lg font-bold mb-4">Follow Us</h4>
+                <div class="flex space-x-4 mb-6">
+                    <!-- Facebook -->
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" 
+                       class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition text-white"
+                       title="Facebook">
+                        📘
+                    </a>
+                    <!-- Instagram -->
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" 
+                       class="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition text-white"
+                       title="Instagram">
+                        📷
+                    </a>
+                    <!-- Twitter/X -->
+                    <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" 
+                       class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center hover:bg-gray-700 transition text-white"
+                       title="Twitter">
+                        𝕏
+                    </a>
+                    <!-- YouTube -->
+                    <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" 
+                       class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 transition text-white"
+                       title="YouTube">
+                        📺
+                    </a>
+                    <!-- LinkedIn -->
+                    <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" 
+                       class="w-10 h-10 bg-blue-700 rounded-full flex items-center justify-center hover:bg-blue-800 transition text-white"
+                       title="LinkedIn">
+                        💼
+                    </a>
+                    <!-- Blog/Blog Icon -->
+                    <a href="#blog" class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center hover:bg-green-700 transition text-white"
+                       title="Blog">
+                        ✍️
+                    </a>
+                </div>
+
+                <h5 class="text-sm font-bold mb-2">Contact</h5>
+                <ul class="space-y-1 text-sm text-gray-400">
+                    <li>📧 <a href="mailto:info@appointmentpro.com" class="hover:text-white">info@appointmentpro.com</a></li>
+                    <li>📞 <a href="tel:+1234567890" class="hover:text-white">+1 (234) 567-890</a></li>
+                    <li>🌍 <a href="#" class="hover:text-white">www.appointmentpro.com</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer Divider -->
+        <hr class="border-gray-700 mb-6">
+
+        <!-- Bottom Footer -->
+        <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+            <p>&copy; 2025 AppointmentPro. All rights reserved.</p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+                <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition">Terms of Service</a>
+                <a href="#" class="hover:text-white transition">Cookie Policy</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- NAVBAR & FOOTER SCRIPT (Include this script in every page) -->
+<script>
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    });
+
+    // Close mobile menu when a link is clicked
+    document.querySelectorAll('#mobile-menu a').forEach(link => {
+        link.addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.add('hidden');
+        });
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (href !== '#' && document.querySelector(href)) {
+                e.preventDefault();
+                document.querySelector(href).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+</script>

@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Appointment System</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        /* Custom scrollbar for dashboard */
+        .scrollable-appointments::-webkit-scrollbar {
+            width: 8px;
+        }
+        .scrollable-appointments::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+        /* Hero background effect */
+        .hero-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav id="navbar" class="sticky top-0 z-50 bg-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <!-- Logo/Brand -->
+            <div class="flex items-center space-x-2">
+                <a href="dashboeard.html" class="flex items-center space-x-2 text-2xl font-bold text-blue-600 hover:text-blue-700">
+                    <span class="text-3xl">📅</span>
+                    <span>AppointmentPro</span>
+                </a>
+            </div>
+
+            <!-- Desktop Menu -->
+            <ul class="hidden md:flex space-x-6 items-center">
+                <li><a href="dashboeard.html" class="text-gray-700 hover:text-blue-600 font-medium transition">Home</a></li>
+                <li><a href="#services" class="text-gray-700 hover:text-blue-600 font-medium transition">Services</a></li>
+                <li><a href="login.html" class="text-gray-700 hover:text-blue-600 font-medium transition">Client Login</a></li>
+                <li><a href="staff-login.html" class="text-gray-700 hover:text-blue-600 font-medium transition">Staff Portal</a></li>
+                <li><a href="#about" class="text-gray-700 hover:text-blue-600 font-medium transition">About</a></li>
+                <li><a href="#contact" class="text-gray-700 hover:text-blue-600 font-medium transition">Contact</a></li>
+            </ul>
+
+            <!-- Mobile Menu Toggle Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-gray-700 text-2xl">☰</button>
+        </div>
+
+        <!-- Mobile Menu (Hidden by default) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-50 border-t">
+            <ul class="flex flex-col space-y-2 p-4">
+                <li><a href="dashboeard.html" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Home</a></li>
+                <li><a href="#services" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Services</a></li>
+                <li><a href="login.html" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Client Login</a></li>
+                <li><a href="staff-login.html" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Staff Portal</a></li>
+                <li><a href="#about" class="block text-gray-700 hover:text-blue-600 font-medium py-2">About</a></li>
+                <li><a href="#contact" class="block text-gray-700 hover:text-blue-600 font-medium py-2">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div id="app" class="min-h-screen flex flex-col items-center p-0 sm:p-4">
+        <!-- Header -->
+        <header class="w-full max-w-7xl mb-0 sm:mb-8 bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-lg flex justify-between items-center">
+            <div class="flex flex-col">
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">
+                    RT Scheduling Pro
+                </h1>
+                <p class="text-xs sm:text-sm text-gray-500 mt-1">Modern Appointment Management</p>
+            </div>
+            
+            <div class="flex space-x-2 sm:space-x-4 items-center">
+                <div id="auth-status" class="hidden sm:block text-sm text-gray-600">
+                    <span id="user-info" class="font-medium text-blue-600">Loading user...</span>
+                </div>
+                <button id="view-client-btn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-colors bg-blue-600 text-white hover:bg-blue-700 shadow-md">
+                    Book Now
+                </button>
+                <button id="view-staff-btn" onclick="window.location.href='staff-login.html'" class="px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-md">
+                    Staff Login
+                </button>
+                <button id="login-signup-btn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-colors bg-indigo-600 text-white hover:bg-indigo-700 shadow-md">
+                    Login / Signup
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area - Will hold Landing, Booking, or Staff views -->
+        <main id="content-area" class="w-full max-w-7xl flex-grow"></main>
+        
+        <!-- System Message Box -->
+        <div id="message-box" class="fixed bottom-4 right-4 max-w-xs transition-opacity duration-300 opacity-0 pointer-events-none z-50">
+            <!-- Messages appear here -->
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, orderBy, getDocs, Timestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { /* Mock config */ };
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Initialize Firebase Services
+        let app, db, auth;
+        let userId = null;
+        let isAuthenticated = false;
+
+        // Application State
+        let currentView = 'landing'; // 'landing', 'booking', or 'staff'
+        let appointments = [];
+        const servicesData = [
+            { id: 'haircut_std', name: 'Standard Haircut', duration_mins: 30, price: '$45', description: 'Quick and clean trim.' },
+            { id: 'haircut_fade', name: 'Fade Haircut', duration_mins: 45, price: '$60', description: 'Precision fade, any style.' },
+            { id: 'beard_trim', name: 'Beard Trim', duration_mins: 15, price: '$20', description: 'Shape and condition.' },
+            { id: 'full_package', name: 'Full Package (Haircut + Shave)', duration_mins: 75, price: '$100', description: 'Complete grooming experience.' }
+        ];
+        
+        // --- UTILITY FUNCTIONS ---
+
+        /** Displays a temporary message box */
+        function showMessage(message, type = 'success') {
+            const box = document.getElementById('message-box');
+            let bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+
+            box.innerHTML = `
+                <div class="${bgColor} text-white p-4 rounded-xl shadow-2xl">
+                    ${message}
+                </div>
+            `;
+            box.classList.remove('opacity-0', 'pointer-events-none');
+            box.classList.add('opacity-100');
+
+            setTimeout(() => {
+                box.classList.remove('opacity-100');
+                box.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        /** Formats a Date object or Timestamp into a readable string */
+        function formatDate(timestamp, includeTime = true) {
+            const date = timestamp instanceof Timestamp ? timestamp.toDate() : new Date(timestamp);
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            if (includeTime) {
+                options.hour = '2-digit';
+                options.minute = '2-digit';
+            }
+            return date.toLocaleString('en-US', options);
+        }
+
+        /** Calculates the end time timestamp based on start time and duration */
+        function calculateEndTime(startTimeISO, durationMins) {
+            const startDate = new Date(startTimeISO);
+            startDate.setMinutes(startDate.getMinutes() + durationMins);
+            return Timestamp.fromDate(startDate);
+        }
+
+        /** Gets the public collection path for appointments */
+        function getAppointmentCollectionPath() {
+            // Public path for collaborative data: /artifacts/{appId}/public/data/{your_collection_name}
+            return `artifacts/${appId}/public/data/appointments`;
+        }
+
+        /** Checks if a requested time slot conflicts with existing appointments */
+        function checkAvailability(requestedStartTimeISO, requestedDuration) {
+            const requestedStartTime = new Date(requestedStartTimeISO).getTime();
+            const requestedEndTime = requestedStartTime + (requestedDuration * 60 * 1000);
+
+            for (const appt of appointments) {
+                // Ignore cancelled appointments for conflict check
+                if (appt.status === 'Cancelled') continue;
+                
+                const existingStartTime = appt.start_time.toDate().getTime();
+                const existingEndTime = appt.end_time.toDate().getTime();
+
+                // Conflict: The new appointment overlaps with an existing one.
+                const isConflict = (
+                    (requestedStartTime < existingEndTime && requestedEndTime > existingStartTime)
+                );
+                
+                if (isConflict) {
+                    return { available: false, conflict: appt };
+                }
+            }
+
+            return { available: true };
+        }
+        
+        // --- FIREBASE AND AUTHENTICATION SETUP ---
+
+        async function initFirebase() {
+            try {
+                // setLogLevel('debug'); // Uncomment to see Firebase logs
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Use the initial auth token if available, otherwise sign in anonymously
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Listen for authentication state changes
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthenticated = true;
+                        // Display user info only on the non-client side for security context
+                        document.getElementById('user-info').textContent = `User ID: ${userId}`; 
+                        // Start listening to data after successful auth
+                        listenForAppointments();
+                        renderApp();
+                    } else {
+                        userId = null;
+                        isAuthenticated = false;
+                        document.getElementById('user-info').textContent = `Authentication required.`;
+                        renderApp();
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                // Still render the app even if Firebase fails, for testing purposes
+                userId = 'test-user-' + Math.random().toString(36).substr(2, 9);
+                isAuthenticated = false;
+                document.getElementById('user-info').textContent = "Demo Mode (No Firebase)";
+                renderApp();
+            }
+        }
+
+        // --- FIREBASE LISTENERS (FR5.0 - Real-Time Display) ---
+
+        function listenForAppointments() {
+            if (!db || !isAuthenticated) return;
+
+            const apptsCollection = collection(db, getAppointmentCollectionPath());
+            
+            // Query for all appointments
+            const q = query(apptsCollection);
+
+            onSnapshot(q, (snapshot) => {
+                const fetchedAppointments = [];
+                snapshot.forEach((doc) => {
+                    fetchedAppointments.push({ id: doc.id, ...doc.data() });
+                });
+
+                // Client-side sorting (as per instructions to avoid index requirements)
+                fetchedAppointments.sort((a, b) => a.start_time.toDate().getTime() - b.start_time.toDate().getTime());
+                
+                appointments = fetchedAppointments;
+                
+                // Re-render relevant views
+                if (currentView === 'staff') {
+                    renderStaffDashboard();
+                } else if (currentView === 'booking') {
+                    // Update time slots if the user is on the booking form
+                    updateTimeSlots();
+                }
+
+            }, (error) => {
+                console.error("Error listening to appointments:", error);
+                showMessage("Failed to load real-time data.", 'error');
+            });
+        }
+
+        // --- LANDING PAGE VIEW (New Attractive Front Page) ---
+        function renderLandingPageView() {
+            const content = document.getElementById('content-area');
+            
+            // Service options requested by the user
+            const serviceTypes = [
+                { name: 'School/College', icon: '&#127891;' },
+                { name: 'Hospital', icon: '&#127973;' },
+                { name: 'Company/Factory', icon: '&#127981;' },
+                { name: 'Doctor Clinic', icon: '&#128133;' },
+                { name: 'Advocate', icon: '&#128100;' },
+                { name: 'Teacher', icon: '&#128218;' },
+                { name: 'Cafe', icon: '&#9749;' },
+                { name: 'Barber Shop', icon: '&#9986;' },
+                { name: 'Bank', icon: '&#127979;' }
+            ];
+
+            // Re-defined features for the bottom section
+            const features = [
+                { icon: '&#128337;', title: 'Real-Time Availability', description: 'See instantly which slots are open. No more back-and-forth emails.' },
+                { icon: '&#128274;', title: 'Secure & Reliable', description: 'Powered by Firestore for fast, scalable, and secure data persistence.' },
+                { icon: '&#128197;', title: 'Instant Confirmation', description: 'Book and receive confirmation in seconds. Optimized for speed.' }
+            ];
+
+            content.innerHTML = `
+                <div class="w-full">
+                    <!-- Hero Section -->
+                    <div class="hero-bg text-white p-8 sm:p-20 rounded-b-xl shadow-2xl flex flex-col items-center text-center">
+                        <h2 class="text-4xl sm:text-6xl font-extrabold leading-tight mb-4 animate-fadeIn">
+                            Schedule Smarter, Not Harder.
+                        </h2>
+                        <p class="text-lg sm:text-xl font-light max-w-2xl">
+                            Select your service type below to find an available appointment slot instantly.
+                        </p>
+                    </div>
+                    
+                    <!-- Service Type Selection Grid -->
+                    <div class="max-w-6xl mx-auto -mt-10 mb-12 px-4 sm:px-6 lg:px-8">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center mb-8">Choose Your Booking Type</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+                            <a href="school.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">📚</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">School/College</h4>
+                            </a>
+                            <a href="hospital.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">🏥</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Hospital</h4>
+                            </a>
+                            <a href="company.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">🏭</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Company/Factory</h4>
+                            </a>
+                            <a href="doctor.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">💅</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Doctor Clinic</h4>
+                            </a>
+                            <a href="advocate.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">👤</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Advocate</h4>
+                            </a>
+                            <a href="teacher.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">📖</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Teacher</h4>
+                            </a>
+                            <a href="cafe.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">☕</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Cafe</h4>
+                            </a>
+                            <a href="barber.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">✂️</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Barber Shop</h4>
+                            </a>
+                            <a href="bank.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">🏫</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Bank</h4>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Value Proposition/Features -->
+                    <div class="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                        <h3 class="text-3xl font-bold text-gray-800 text-center mb-10">System Capabilities</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            ${features.map(f => `
+                                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 border-t-4 border-blue-600">
+                                    <div class="text-4xl mb-4 text-blue-600">${f.icon}</div>
+                                    <h4 class="text-xl font-semibold text-gray-900 mb-2">${f.title}</h4>
+                                    <p class="text-gray-600">${f.description}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Client Testimonial (Mock) -->
+                    <div class="bg-gray-100 py-12">
+                        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                            <p class="text-xl italic text-gray-700">
+                                "Booking has never been easier. The real-time availability check eliminated all the frustration of trying to find a slot. Highly recommend!"
+                            </p>
+                            <p class="mt-4 font-semibold text-gray-800">- Satisfied Client, New York</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+
+        // --- CLIENT BOOKING INTERFACE (FR1.0, FR3.0) ---
+
+        function renderBookingFormView() {
+            const today = new Date().toISOString().split('T')[0];
+            const content = document.getElementById('content-area');
+            content.innerHTML = `
+                <div class="w-full max-w-4xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-xl mt-8 mb-8">
+                    <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">Book Your Next Service</h2>
+                    <form id="booking-form" class="space-y-6">
+                        <div>
+                            <label for="service" class="block text-sm font-medium text-gray-700 mb-1">Select Service</label>
+                            <select id="service" name="service" required
+                                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                                <option value="" disabled selected>Choose a service</option>
+                                ${servicesData.map(s => `
+                                    <option value="${s.id}" data-duration="${s.duration_mins}">${s.name} (${s.price}, ${s.duration_mins} mins)</option>
+                                `).join('')}
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label for="date" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                                <input type="date" id="date" name="date" required min="${today}"
+                                    class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                            </div>
+                            <div>
+                                <label for="time" class="block text-sm font-medium text-gray-700 mb-1">Time (Available slots only)</label>
+                                <select id="time" name="time" required disabled
+                                    class="w-full p-3 border border-gray-300 bg-gray-100 rounded-lg shadow-sm transition duration-150">
+                                    <option value="" disabled selected>Select a date first</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="client_name" class="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
+                            <input type="text" id="client_name" name="client_name" required
+                                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                                placeholder="e.g., Jane Doe">
+                        </div>
+
+                        <div>
+                            <label for="client_contact" class="block text-sm font-medium text-gray-700 mb-1">Contact (Email or Phone)</label>
+                            <input type="text" id="client_contact" name="client_contact" required
+                                class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150"
+                                placeholder="e.g., jane@example.com">
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 transition duration-150">
+                            Confirm Appointment
+                        </button>
+                    </form>
+
+                    <div id="availability-message" class="mt-4 p-4 rounded-lg text-sm text-center hidden"></div>
+                </div>
+            `;
+            
+            document.getElementById('date').addEventListener('change', updateTimeSlots);
+            document.getElementById('service').addEventListener('change', updateTimeSlots);
+            document.getElementById('booking-form').addEventListener('submit', handleBookingSubmission);
+
+            // Set today's date restriction and update slots
+            document.getElementById('date').value = today;
+            updateTimeSlots();
+        }
+
+        // Function to populate time slots based on service/date selection (FR2.0)
+        function updateTimeSlots() {
+            const dateInput = document.getElementById('date')?.value;
+            const serviceSelect = document.getElementById('service');
+            const timeSelect = document.getElementById('time');
+
+            if (!timeSelect) return; // Guard if not in booking view
+
+            const duration = parseInt(serviceSelect?.options[serviceSelect.selectedIndex]?.dataset.duration || 0);
+
+            timeSelect.innerHTML = '';
+            timeSelect.disabled = true;
+            
+            if (!dateInput || !duration) {
+                timeSelect.innerHTML = '<option value="" disabled selected>Select service and date</option>';
+                return;
+            }
+
+            timeSelect.disabled = false;
+            let foundSlot = false;
+            const availableSlots = getAvailableTimeSlots(dateInput, duration);
+
+            availableSlots.forEach(slot => {
+                timeSelect.innerHTML += `<option value="${slot.iso}">${slot.display}</option>`;
+                foundSlot = true;
+            });
+            
+            if (!foundSlot) {
+                timeSelect.innerHTML = '<option value="" disabled selected>No slots available</option>';
+            }
+        }
+
+        /** Generates a list of potential time slots and checks them against existing appointments */
+        function getAvailableTimeSlots(dateISO, durationMins) {
+            const slots = [];
+            const currentDate = new Date();
+            const selectedDate = new Date(dateISO);
+            
+            // Define business hours (e.g., 9:00 AM to 5:00 PM)
+            for (let hour = 9; hour < 17; hour++) {
+                for (const minute of [0, 30]) {
+                    const slotStart = new Date(dateISO);
+                    slotStart.setHours(hour, minute, 0, 0);
+
+                    // Skip slots in the past
+                    if (slotStart.getTime() < currentDate.getTime() && selectedDate.toDateString() === currentDate.toDateString()) {
+                        continue;
+                    }
+                    
+                    const slotStartISO = slotStart.toISOString();
+                    const { available } = checkAvailability(slotStartISO, durationMins);
+
+                    if (available) {
+                        slots.push({
+                            iso: slotStartISO,
+                            display: slotStart.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })
+                        });
+                    }
+                }
+            }
+            return slots;
+        }
+
+        // --- BOOKING SUBMISSION (FR3.0, FR7.0, Conflict Logic) ---
+
+        async function handleBookingSubmission(event) {
+            event.preventDefault();
+
+            const form = event.target;
+            const serviceId = form.service.value;
+            const date = form.date.value;
+            const timeISO = form.time.value;
+            const clientName = form.client_name.value.trim();
+            const clientContact = form.client_contact.value.trim();
+
+            if (!timeISO || !serviceId || !clientName || !clientContact) {
+                showMessage("Please fill out all fields.", 'error');
+                return;
+            }
+
+            const service = servicesData.find(s => s.id === serviceId);
+            const duration = service.duration_mins;
+            const startTimestamp = Timestamp.fromDate(new Date(timeISO));
+            const endTimestamp = calculateEndTime(timeISO, duration);
+
+            // Server-side Conflict Check Simulation
+            const { available, conflict } = checkAvailability(timeISO, duration);
+            if (!available) {
+                const conflictTime = formatDate(conflict.start_time);
+                showMessage(`Booking conflict! The slot at ${formatDate(startTimestamp)} overlaps with an existing appointment at ${conflictTime}. Please choose another time.`, 'error');
+                return;
+            }
+
+            try {
+                const newAppointment = {
+                    client_name: clientName,
+                    client_contact: clientContact,
+                    service_ref: serviceId,
+                    service_name: service.name,
+                    start_time: startTimestamp,
+                    end_time: endTimestamp,
+                    status: 'Pending',
+                    booked_at: Timestamp.now(),
+                    booked_by_uid: userId, // Record who created the booking
+                };
+
+                const collectionRef = collection(db, getAppointmentCollectionPath());
+                await addDoc(collectionRef, newAppointment);
+
+                showMessage(`Success! Your appointment for ${service.name} on ${formatDate(startTimestamp)} has been booked.`, 'success');
+                form.reset();
+                updateTimeSlots(); // Refresh slots
+            } catch (error) {
+                console.error("Error creating appointment:", error);
+                showMessage("Failed to submit booking. Please try again.", 'error');
+            }
+        }
+
+        // --- STAFF DASHBOARD (FR4.0, FR5.0, FR6.0) ---
+
+        function renderStaffDashboard() {
+            const content = document.getElementById('content-area');
+            const dashboardContainer = document.createElement('div');
+            dashboardContainer.className = "w-full max-w-7xl mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-xl mt-8 mb-8";
+
+            if (appointments.length === 0) {
+                 dashboardContainer.innerHTML = `
+                    <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">Staff Dashboard</h2>
+                    <div class="p-6 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg">
+                        No appointments scheduled.
+                    </div>
+                `;
+                content.innerHTML = '';
+                content.appendChild(dashboardContainer);
+                return;
+            }
+
+            // Filter out completed and cancelled appointments for the main view, keeping only future/pending
+            const activeAppointments = appointments.filter(appt => 
+                appt.status !== 'Completed' && 
+                appt.status !== 'Cancelled' &&
+                appt.start_time.toDate().getTime() > new Date().getTime() - (60 * 60 * 1000) // Keep appointments up to 1 hour in the past
+            );
+
+
+            const groupedAppts = activeAppointments.reduce((acc, appt) => {
+                const dateKey = formatDate(appt.start_time, false);
+                if (!acc[dateKey]) acc[dateKey] = [];
+                acc[dateKey].push(appt);
+                return acc;
+            }, {});
+
+            dashboardContainer.innerHTML = `
+                <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b pb-2">Staff Dashboard <span class="text-sm text-gray-500">(Real-Time)</span></h2>
+                <div class="p-4 mb-4 bg-blue-50 border-l-4 border-blue-500 text-blue-800 rounded-lg">
+                    <p class="font-medium">User ID: <span class="font-normal text-sm">${userId}</span> (For Admin/Dev use)</p>
+                </div>
+                ${Object.keys(groupedAppts).length === 0 ? `
+                    <div class="p-6 bg-green-50 border border-green-200 text-green-800 rounded-lg">
+                        You are all caught up! No active appointments pending.
+                    </div>
+                ` : `
+                    <div class="space-y-8 scrollable-appointments max-h-[70vh] overflow-y-auto pr-2">
+                        ${Object.entries(groupedAppts).map(([date, apptList]) => `
+                            <div class="border-t border-gray-200 pt-4">
+                                <h3 class="text-xl font-semibold text-gray-800 mb-4">${date}</h3>
+                                <div class="space-y-4">
+                                    ${apptList.map(appt => renderAppointmentCard(appt)).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `}
+            `;
+            
+            content.innerHTML = '';
+            content.appendChild(dashboardContainer);
+        }
+        
+        function renderAppointmentCard(appt) {
+            let statusClass = {
+                'Pending': 'bg-yellow-100 text-yellow-800 border-yellow-500',
+                'Confirmed': 'bg-green-100 text-green-800 border-green-500',
+                'Completed': 'bg-gray-100 text-gray-600 border-gray-400',
+                'Cancelled': 'bg-red-100 text-red-800 border-red-500'
+            }[appt.status] || 'bg-blue-100 text-blue-800 border-blue-500';
+            
+            const timeDisplay = `${formatDate(appt.start_time, true).split(', ')[1]} - ${formatDate(appt.end_time, true).split(', ')[1]}`;
+
+            return `
+                <div id="appt-${appt.id}" class="p-4 border-l-4 ${statusClass} rounded-lg shadow-md transition-shadow hover:shadow-lg bg-white">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div class="mb-2 sm:mb-0">
+                            <p class="text-lg font-bold">${timeDisplay}</p>
+                            <p class="text-gray-900 font-medium">${appt.client_name} - <span class="font-normal text-sm text-gray-600">${appt.client_contact}</span></p>
+                            <p class="text-blue-600 text-sm">${appt.service_name}</p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${statusClass.split(' ')[0]} ${statusClass.split(' ')[1]}">
+                            ${appt.status}
+                        </span>
+                    </div>
+
+                    <div class="mt-3 flex flex-wrap gap-2 text-sm">
+                        ${appt.status !== 'Confirmed' ? `
+                            <button onclick="updateAppointmentStatus('${appt.id}', 'Confirmed')" class="px-3 py-1 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-150 shadow-sm">Confirm</button>
+                        ` : ''}
+                        ${appt.status !== 'Completed' ? `
+                            <button onclick="updateAppointmentStatus('${appt.id}', 'Completed')" class="px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition duration-150 shadow-sm">Complete</button>
+                        ` : ''}
+                        ${appt.status !== 'Cancelled' ? `
+                            <button onclick="deleteAppointment('${appt.id}')" class="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-150 shadow-sm">Cancel</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- CRUD OPERATIONS (FR6.0) ---
+
+        /** Global function for use in inline onclick handlers */
+        window.updateAppointmentStatus = async function(id, newStatus) {
+            if (!db || !isAuthenticated) {
+                showMessage("Not authorized to perform this action.", 'error');
+                return;
+            }
+            try {
+                const docRef = doc(db, getAppointmentCollectionPath(), id);
+                await updateDoc(docRef, { status: newStatus });
+                showMessage(`Appointment ID ${id} updated to ${newStatus}.`, 'success');
+            } catch (error) {
+                console.error("Error updating document:", error);
+                showMessage(`Failed to update status: ${error.message}`, 'error');
+            }
+        }
+
+        /** Global function for use in inline onclick handlers */
+        window.deleteAppointment = async function(id) {
+            if (!db || !isAuthenticated) {
+                showMessage("Not authorized to perform this action.", 'error');
+                return;
+            }
+            // Use a custom confirmation modal simulation instead of alert()
+            if (!window.confirm("Are you sure you want to cancel (delete) this appointment?")) {
+                return;
+            }
+
+            try {
+                const docRef = doc(db, getAppointmentCollectionPath(), id);
+                await deleteDoc(docRef);
+                showMessage(`Appointment ID ${id} has been cancelled and removed.`, 'success');
+            } catch (error) {
+                console.error("Error deleting document:", error);
+                showMessage(`Failed to delete appointment: ${error.message}`, 'error');
+            }
+        }
+        
+        // --- VIEW SWITCHING LOGIC ---
+
+        window.setView = function(view) {
+            currentView = view;
+            
+            // Update button text/styles
+            const clientBtn = document.getElementById('view-client-btn');
+            const staffBtn = document.getElementById('view-staff-btn');
+
+            // Reset button styles
+            clientBtn.classList.remove('bg-gray-200', 'text-gray-800');
+            clientBtn.classList.remove('bg-blue-600', 'text-white');
+            staffBtn.classList.remove('bg-gray-200', 'text-gray-800');
+            staffBtn.classList.remove('bg-blue-600', 'text-white');
+
+
+            if (view === 'landing' || view === 'booking') {
+                clientBtn.textContent = 'Book Now';
+                clientBtn.classList.add('bg-blue-600', 'text-white');
+                staffBtn.classList.add('bg-gray-200', 'text-gray-800');
+            } else { // staff
+                clientBtn.textContent = 'Book Now';
+                clientBtn.classList.add('bg-gray-200', 'text-gray-800');
+                staffBtn.classList.add('bg-blue-600', 'text-white');
+            }
+
+            if (view === 'landing') {
+                renderLandingPageView();
+            } else if (view === 'booking') {
+                renderBookingFormView();
+            } else { // staff
+                renderStaffDashboard();
+            }
+        }
+
+        // --- INITIALIZATION ---
+        
+        function renderApp() {
+            // Render the initial view based on the current state
+            if (currentView === 'staff') {
+                renderStaffDashboard();
+            } else if (currentView === 'booking') {
+                renderBookingFormView();
+            } else {
+                renderLandingPageView();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            initFirebase();
+            
+            // Setup view switching
+            const clientBtn = document.getElementById('view-client-btn');
+            const staffBtn = document.getElementById('view-staff-btn');
+            
+            if (clientBtn) {
+                clientBtn.addEventListener('click', () => {
+                    // If currently on landing, switch to booking form
+                    if (currentView === 'landing' || currentView === 'staff') {
+                        window.setView('booking');
+                    } else {
+                        // If currently on booking form, go back to landing
+                        window.setView('landing');
+                    }
+                });
+            }
+            
+            if (staffBtn) {
+                staffBtn.addEventListener('click', () => window.setView('staff'));
+            }
+
+            // --- Simple client-side auth button (Login/Signup -> login.html, toggles to Logout when signed in) ---
+            const loginBtn = document.getElementById('login-signup-btn');
+            function updateAuthButtons() {
+                const cuRaw = localStorage.getItem('currentUser');
+                const authStatus = document.getElementById('auth-status');
+                const userInfo = document.getElementById('user-info');
+                if (!loginBtn) return;
+
+                if (cuRaw) {
+                    let parsed = null;
+                    try { parsed = JSON.parse(cuRaw); } catch (e) { parsed = cuRaw; }
+                    loginBtn.textContent = 'Logout';
+                    if (authStatus) authStatus.classList.remove('hidden');
+                    if (userInfo) userInfo.textContent = (parsed && parsed.name) ? parsed.name : ((parsed && parsed.email) ? parsed.email : 'Signed in');
+                } else {
+                    loginBtn.textContent = 'Login / Signup';
+                    if (authStatus) authStatus.classList.add('hidden');
+                    if (userInfo) userInfo.textContent = 'Not signed in';
+                }
+            }
+
+            if (loginBtn) {
+                loginBtn.addEventListener('click', () => {
+                    if (localStorage.getItem('currentUser')) {
+                        // Logout locally
+                        localStorage.removeItem('currentUser');
+                        localStorage.removeItem('rememberMe');
+                        updateAuthButtons();
+                        showMessage('Logged out successfully.', 'success');
+                    } else {
+                        // Redirect to login/signup page
+                        window.location.href = 'login.html';
+                    }
+                });
+                updateAuthButtons();
+            }
+
+            // Mobile menu toggle
+            document.getElementById('mobile-menu-btn')?.addEventListener('click', function() {
+                const menu = document.getElementById('mobile-menu');
+                menu.classList.toggle('hidden');
+            });
+
+            // Close mobile menu when a link is clicked
+            document.querySelectorAll('#mobile-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                });
+            });
+        });
+
+    </script>
+
+    <!-- FOOTER -->
+    <footer id="footer" class="bg-gray-900 text-white mt-16 w-full">
+        <div class="max-w-7xl mx-auto px-4 py-12">
+            <!-- Footer Content Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <!-- Company Info -->
+                <div>
+                    <h4 class="text-xl font-bold mb-4">AppointmentPro</h4>
+                    <p class="text-gray-400 text-sm mb-4">
+                        Modern appointment booking system designed to simplify scheduling for all service types.
+                    </p>
+                    <p class="text-gray-500 text-xs">© 2025 AppointmentPro. All rights reserved.</p>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Quick Links</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="dashboeard.html" class="text-gray-400 hover:text-white transition">Home</a></li>
+                        <li><a href="#services" class="text-gray-400 hover:text-white transition">Services</a></li>
+                        <li><a href="login.html" class="text-gray-400 hover:text-white transition">Book Appointment</a></li>
+                        <li><a href="staff-login.html" class="text-gray-400 hover:text-white transition">Staff Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <!-- Services -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Services</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="school.html" class="text-gray-400 hover:text-white transition">School/College</a></li>
+                        <li><a href="hospital.html" class="text-gray-400 hover:text-white transition">Hospital</a></li>
+                        <li><a href="company.html" class="text-gray-400 hover:text-white transition">Company</a></li>
+                        <li><a href="doctor.html" class="text-gray-400 hover:text-white transition">Doctor Clinic</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact & Social Media -->
+                <div>
+                    <h4 class="text-lg font-bold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4 mb-6">
+                        <!-- Facebook -->
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" 
+                           class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition text-white"
+                           title="Facebook">
+                            f
+                        </a>
+                        <!-- Instagram -->
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" 
+                           class="w-10 h-10 bg-pink-600 rounded-full flex items-center justify-center hover:bg-pink-700 transition text-white"
+                           title="Instagram">
+                            📷
+                        </a>
+                        <!-- Twitter/X -->
+                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" 
+                           class="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center hover:bg-gray-700 transition text-white"
+                           title="Twitter">
+                            𝕏
+                        </a>
+                        <!-- YouTube -->
+                        <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" 
+                           class="w-10 h-10 bg-red-600 rounded-full flex items-center justify-center hover:bg-red-700 transition text-white"
+                           title="YouTube">
+                            ▶️
+                        </a>
+                        <!-- LinkedIn -->
+                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" 
+                           class="w-10 h-10 bg-blue-700 rounded-full flex items-center justify-center hover:bg-blue-800 transition text-white"
+                           title="LinkedIn">
+                            in
+                        </a>
+                        <!-- Blog -->
+                        <a href="#blog" class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center hover:bg-green-700 transition text-white"
+                           title="Blog">
+                            ✍️
+                        </a>
+                    </div>
+
+                    <h5 class="text-sm font-bold mb-2">Contact</h5>
+                    <ul class="space-y-1 text-sm text-gray-400">
+                        <li>📧 <a href="mailto:info@appointmentpro.com" class="hover:text-white">info@appointmentpro.com</a></li>
+                        <li>📞 <a href="tel:+1234567890" class="hover:text-white">+1 (234) 567-890</a></li>
+                        <li>🌍 <a href="#" class="hover:text-white">www.appointmentpro.com</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer Divider -->
+            <hr class="border-gray-700 mb-6">
+
+            <!-- Bottom Footer -->
+            <div class="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+                <p>&copy; 2025 AppointmentPro. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

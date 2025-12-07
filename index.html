@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Appointment System</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        /* Hero background effect */
+        .hero-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="min-h-screen flex flex-col items-center p-0 sm:p-4">
+        <!-- Header -->
+        <header class="w-full max-w-7xl mb-0 sm:mb-8 bg-white p-4 sm:p-6 rounded-none sm:rounded-xl shadow-lg flex justify-between items-center">
+            <div class="flex flex-col">
+                <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">
+                    RT Scheduling Pro
+                </h1>
+                <p class="text-xs sm:text-sm text-gray-500 mt-1">Modern Appointment Management</p>
+            </div>
+            
+            <div class="flex space-x-2 sm:space-x-4 items-center">
+                <div id="logged-in-user" class="hidden sm:block text-sm text-gray-600">
+                    <span id="user-name" class="font-medium text-blue-600"></span>
+                </div>
+                <button id="view-client-btn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-colors bg-blue-600 text-white hover:bg-blue-700 shadow-md">
+                    Book Now
+                </button>
+                <button id="view-staff-btn" class="px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-md">
+                    Staff Login
+                </button>
+                <a id="login-btn" href="login.html" class="px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-colors bg-green-600 text-white hover:bg-green-700 shadow-md">
+                    Login
+                </a>
+                <button id="logout-btn" class="hidden px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-medium rounded-lg transition-colors bg-red-600 text-white hover:bg-red-700 shadow-md">
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="content-area" class="w-full max-w-7xl flex-grow"></main>
+        
+        <!-- System Message Box -->
+        <div id="message-box" class="fixed bottom-4 right-4 max-w-xs transition-opacity duration-300 opacity-0 pointer-events-none z-50">
+            <!-- Messages appear here -->
+        </div>
+    </div>
+
+    <script>
+        // Authentication state
+        let currentUser = null;
+        let currentView = 'landing';
+
+        // Check if user is logged in
+        function checkAuthStatus() {
+            const user = localStorage.getItem('currentUser');
+            if (user) {
+                currentUser = JSON.parse(user);
+                updateAuthUI();
+            } else {
+                updateAuthUI();
+            }
+        }
+
+        // Update authentication UI
+        function updateAuthUI() {
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const userNameEl = document.getElementById('user-name');
+            const loggedInUserDiv = document.getElementById('logged-in-user');
+
+            if (currentUser) {
+                loginBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+                loggedInUserDiv.classList.remove('hidden');
+                userNameEl.textContent = `Hello, ${currentUser.name}!`;
+            } else {
+                loginBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                loggedInUserDiv.classList.add('hidden');
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('rememberMe');
+            currentUser = null;
+            updateAuthUI();
+            renderLandingPageView();
+            showMessage('You have been logged out', 'success');
+        }
+
+        // Show message
+        function showMessage(message, type = 'success') {
+            const box = document.getElementById('message-box');
+            let bgColor = type === 'success' ? 'bg-green-600' : 'bg-red-600';
+
+            box.innerHTML = `
+                <div class="${bgColor} text-white p-4 rounded-xl shadow-2xl">
+                    ${message}
+                </div>
+            `;
+            box.classList.remove('opacity-0', 'pointer-events-none');
+            box.classList.add('opacity-100');
+
+            setTimeout(() => {
+                box.classList.remove('opacity-100');
+                box.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Render landing page
+        function renderLandingPageView() {
+            const content = document.getElementById('content-area');
+            
+            const features = [
+                { icon: '&#128337;', title: 'Real-Time Availability', description: 'See instantly which slots are open. No more back-and-forth emails.' },
+                { icon: '&#128274;', title: 'Secure & Reliable', description: 'Powered by secure data storage for fast, scalable, and reliable service.' },
+                { icon: '&#128197;', title: 'Instant Confirmation', description: 'Book and receive confirmation in seconds. Optimized for speed.' }
+            ];
+
+            content.innerHTML = `
+                <div class="w-full">
+                    <!-- Hero Section -->
+                    <div class="hero-bg text-white p-8 sm:p-20 rounded-b-xl shadow-2xl flex flex-col items-center text-center">
+                        <h2 class="text-4xl sm:text-6xl font-extrabold leading-tight mb-4 animate-fadeIn">
+                            Schedule Smarter, Not Harder.
+                        </h2>
+                        <p class="text-lg sm:text-xl font-light max-w-2xl">
+                            Select your service type below to find an available appointment slot instantly.
+                        </p>
+                    </div>
+                    
+                    <!-- Service Type Selection Grid -->
+                    <div class="max-w-6xl mx-auto -mt-10 mb-12 px-4 sm:px-6 lg:px-8">
+                        <h3 class="text-2xl sm:text-3xl font-bold text-gray-800 text-center mb-8">Choose Your Booking Type</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6">
+                            <a href="school.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">📚</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">School/College</h4>
+                            </a>
+                            <a href="hospital.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">🏥</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Hospital</h4>
+                            </a>
+                            <a href="company.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">🏭</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Company/Factory</h4>
+                            </a>
+                            <a href="doctor.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">💅</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Doctor Clinic</h4>
+                            </a>
+                            <a href="advocate.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">👤</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Advocate</h4>
+                            </a>
+                            <a href="teacher.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">📖</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Teacher</h4>
+                            </a>
+                            <a href="cafe.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">☕</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Cafe</h4>
+                            </a>
+                            <a href="barber.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">✂️</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Barber Shop</h4>
+                            </a>
+                            <a href="bank.html" class="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02] border-t-4 border-blue-600 cursor-pointer text-center h-full min-h-[120px]">
+                                <div class="text-3xl sm:text-4xl mb-2">🏫</div>
+                                <h4 class="text-sm sm:text-lg font-semibold text-gray-900">Bank</h4>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Value Proposition/Features -->
+                    <div class="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+                        <h3 class="text-3xl font-bold text-gray-800 text-center mb-10">System Capabilities</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            ${features.map(f => `
+                                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 border-t-4 border-blue-600">
+                                    <div class="text-4xl mb-4 text-blue-600">${f.icon}</div>
+                                    <h4 class="text-xl font-semibold text-gray-900 mb-2">${f.title}</h4>
+                                    <p class="text-gray-600">${f.description}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Client Testimonial (Mock) -->
+                    <div class="bg-gray-100 py-12">
+                        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                            <p class="text-xl italic text-gray-700">
+                                "Booking has never been easier. The real-time availability check eliminated all the frustration of trying to find a slot. Highly recommend!"
+                            </p>
+                            <p class="mt-4 font-semibold text-gray-800">- Satisfied Client, New York</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            checkAuthStatus();
+            renderLandingPageView();
+
+            // Setup button listeners
+            document.getElementById('logout-btn').addEventListener('click', logout);
+        });
+    </script>
+</body>
+</html>

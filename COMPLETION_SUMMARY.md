@@ -14,7 +14,7 @@
    - Service selection grid
    - Real-time appointment tracking
    - Client navigation
-
+git 
 ✅ Authentication Pages
    - Client Login/Signup (login.html)
    - Staff Login/Signup (staff-login.html)
